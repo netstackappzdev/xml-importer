@@ -129,9 +129,9 @@ class ReadXML {
     private function connectServer(){
         // FTP server details
         
-        $ftpHost   = 'transport.productsup.io';
-        $ftpUsername = 'pupDe';
-        $ftpPassword = 'pupDev2018';
+        $ftpHost   = '';
+        $ftpUsername = '';
+        $ftpPassword = '';
 
         // open an FTP connection
         $connId = ftp_connect($ftpHost) or die("Couldn't connect to $ftpHost");
@@ -141,7 +141,7 @@ class ReadXML {
 
         // local & server file path
         $localFilePath  = '/';
-        $remoteFilePath = '/var/www/html/php/productsup/';
+        $remoteFilePath = '';
 
         // try to download a file from server
         if(ftp_get($connId, $localFilePath, $remoteFilePath, FTP_BINARY)){
