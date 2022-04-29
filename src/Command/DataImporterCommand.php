@@ -6,24 +6,9 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Completion\CompletionInput;
-use Symfony\Component\Console\Completion\CompletionSuggestions;
-
-use Symfony\Component\Console\Input\InputDefinition;
-//use Symfony\Component\Filesystem\Filesystem;
-
-// json conversion
-use Symfony\Component\Config\Util\XmlUtils;
+use Symfony\Component\Console\Question\ChoiceQuestion;
 use App\Service\ReadXML;
- 
-
-//google sheet 
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-
-use League\Csv\Writer;
-
 
 // the "name" and "description" arguments of AsCommand replace the
 // static $defaultName and $defaultDescription properties
@@ -77,6 +62,14 @@ class DataImporterCommand extends Command
     {       
         $fetch =  $input->getOption('fetch');
         $to = $input->getOption('to');
+
+        // $question = new ChoiceQuestion(
+        //     'Choose any one format to convert the data',
+        //     // choices can also be PHP objects that implement __toString() method
+        //     ['CSV', 'GoogleSheet', 'JSON'],
+        //     0
+        // );
+        //$question->setErrorMessage('Color %s is invalid.');
 
         $output->writeln("Fetching XML from $fetch");
         $this->readXML = new ReadXML();

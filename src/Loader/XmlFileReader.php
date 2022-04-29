@@ -17,7 +17,7 @@ class XmlFileReader extends FileLoader {
     {
         $path = $this->locator->locate($file);
         try {
-            $dom = XmlUtils::loadFile($path/*, array($this, 'validateSchema')*/);
+            $dom = XmlUtils::loadFile($path);
         }
         catch (\InvalidArgumentException $e) {
             throw new \InvalidArgumentException(sprintf('Unable to parse file "%s".', $file), $e->getCode(), $e);

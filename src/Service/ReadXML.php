@@ -2,19 +2,28 @@
 
 namespace App\Service;
 use Symfony\Component\Config\Util\XmlUtils;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Config\FileLocator;
 use App\Loader\XmlFileReader;
 use League\Csv\Writer;
 use App\Lib\GoogleSheetsImport;
+use Psr\Log\LoggerInterface;
 
- 
+use App\Writer\JsonWriter;
+use App\Writer\CsvWriter;
+
 class ReadXML {
     public xmlFileReader $XmlFileReader;
-    private $filename;
+    private $filename;    
+    private $logger;
+
 
     /** @var GoogleSheetsImport */
     private GoogleSheetsImport $sheets;
+
+    // public function __construct(LoggerInterface $logger)
+    // {
+    //     $this->logger = $logger;
+    // }
 
     /**
      * importManagementPropertyInfoCommand constructor.
@@ -27,8 +36,6 @@ class ReadXML {
 
     public function convert($fetch,$to){
         $result = '';
-        $this->connectServer();
-        die;
         if($result = $this->load($fetch)){
             $result .= $this->saveCSV();
             if($to=='JSON') $result .= $this->saveJson();
@@ -72,11 +79,20 @@ class ReadXML {
         $this->xmlData['data']=$formattedData;
 
         try {
-            $file = dirname(__FILE__, 3). '/public/products-up.csv';
+            $file = dirname(__FILE__, 3). '/public/sample-'.date('m-d-Y_H:i:s').'.csv';
             // insert the headers and the rows in the CSV file
-            $csv = Writer::createFromPath($file, 'w');
-            $csv->insertOne($headers);
-            $csv->insertAll($formattedData);
+            // $csv = Writer::createFromPath($file, 'w');
+            // $csv->insertOne($headers);
+            // $csv->insertAll($formattedData);
+
+            $writer = new CsvWriter($file, ',', '"', '\\', false);
+            $writer->open();
+            foreach($outputArray as $outputdata){
+                $writer->write($$outputdata);
+            }
+
+            $writer->close();
+
         }
         catch(IOException $e) {
             //log code here
@@ -84,12 +100,12 @@ class ReadXML {
     }
 
     private function saveJson(){
-        $jsonData = json_encode($this->xmlData['data']);
-        //write the json file into system
-        $filesystem = new Filesystem();
         try {
-            $file = dirname(__FILE__, 3). '/public/file.json';
-            $filesystem->dumpFile($file, $jsonData); 
+            $file = dirname(__FILE__, 3). '/public/sample-'.date('m-d-Y_H:i:s').'.json';
+            $writer = new JsonWriter($file);
+            $writer->open();
+            $writer->write($this->xmlData['data']);
+            $writer->close();
         }
         catch(IOException $e) {
             //log code here
@@ -113,7 +129,7 @@ class ReadXML {
     private function connectServer(){
         // FTP server details
         
-        $ftpHost   = 'ftp://transport.productsup.io/';
+        $ftpHost   = 'transport.productsup.io';
         $ftpUsername = 'pupDe';
         $ftpPassword = 'pupDev2018';
 
