@@ -88,7 +88,7 @@ class ReadXML {
             $writer = new CsvWriter($file, ',', '"', '\\', false);
             $writer->open();
             foreach($outputArray as $outputdata){
-                $writer->write($$outputdata);
+                $writer->write($outputdata);
             }
 
             $writer->close();
