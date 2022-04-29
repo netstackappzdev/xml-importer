@@ -11,6 +11,7 @@ services:
             - ./:/var/www/html/
         ports:
             - 8080:80
+#        command: sh -c "composer install"
     db:
         container_name: db
         image: mysql
@@ -21,4 +22,5 @@ services:
             MYSQL_USER: MYSQL_USER
             MYSQL_PASSWORD: MYSQL_PASSWORD
         ports:
-            - "3306:3306"
+                - "3306:3306"
+

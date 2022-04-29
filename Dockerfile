@@ -7,3 +7,4 @@ RUN apt-get update && apt-get upgrade -y
 WORKDIR /var/www/html
 ADD ./ .
 RUN php /usr/local/bin/composer install
+RUN composer install
