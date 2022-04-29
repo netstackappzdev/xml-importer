@@ -46,18 +46,23 @@ class ReadXML {
     }
 
     public function load($fetch){
-        $file = new FileLocator(dirname(__FILE__, 3) . '/public/');
-        $this->filename = 'employee.xml';
-        //$file = dirname(__FILE__, 3). '/public/employee.xml'; 
-        $this->xmlFileReader = new XmlFileReader($file);
-        if($this->xmlFileReader->supports($this->filename)){
-            $data= $this->xmlFileReader->load($this->filename);
-            $this->xmlData=$data['row'];
-        } else {
-            echo "file format is wrong";
-            return true;
-        }   
-        return true;    
+        if($fetch=='local'){
+            $file = new FileLocator(dirname(__FILE__, 3) . '/public/');
+            $this->filename = 'employee.xml';
+            //$file = dirname(__FILE__, 3). '/public/employee.xml'; 
+            $this->xmlFileReader = new XmlFileReader($file);
+            if($this->xmlFileReader->supports($this->filename)){
+                $data= $this->xmlFileReader->load($this->filename);
+                $this->xmlData=$data['row'];
+            } else {
+                echo "file format is wrong";
+                return true;
+            }   
+        }elseif($fetch=='server'){
+            //$this->connectServer();
+        }
+
+        return true;  
     }
 
     public function saveCSV(){

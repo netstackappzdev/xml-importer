@@ -47,7 +47,7 @@ class DataImporterCommand extends Command
                 null,
                 InputOption::VALUE_REQUIRED,
                 'fetch XML from local or server?',
-                'server' // this is the new default value, instead of null
+                'local' // this is the new default value, instead of null
             )
             ->addOption(
                 'to',
