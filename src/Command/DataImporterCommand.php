@@ -1,7 +1,10 @@
 <?php
+declare(strict_types=1);
 namespace App\Command;
 
-use Psr\Log\LoggerInterface;
+use App\Command\MyDependency;
+use Symfony\Component\Console\Logger\ConsoleLogger;
+use Psr\Log\LogLevel;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -9,6 +12,8 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use App\Service\ReadXML;
+use App\Service\ImportXML;
+
 
 // the "name" and "description" arguments of AsCommand replace the
 // static $defaultName and $defaultDescription properties
@@ -22,14 +27,7 @@ use App\Service\ReadXML;
 class DataImporterCommand extends Command
 {
     private ReadXML $readXML;
-
-    // public function __construct(
-    //     ReadXML $readXML
-    // ) {
-    //     $this->readXML = $readXML;
-    //     parent::__construct();
-    // }
-
+    //private LoggerInterface $logger;
 
     // the name of the command (the part after "bin/console")
     protected static $defaultName = 'app:xml-data-importer';
@@ -70,6 +68,16 @@ class DataImporterCommand extends Command
         //     0
         // );
         //$question->setErrorMessage('Color %s is invalid.');
+
+        // $verbosityLevelMap = [
+        //     LogLevel::NOTICE => OutputInterface::VERBOSITY_NORMAL,
+        //     LogLevel::INFO   => OutputInterface::VERBOSITY_NORMAL,
+        // ];
+        
+        // $logger = new ConsoleLogger($output, $verbosityLevelMap);
+
+        // $myDependency = new MyDependency($logger);
+        // $myDependency->doStuff('test data');
 
         $output->writeln("Fetching XML from $fetch");
         $this->readXML = new ReadXML();
