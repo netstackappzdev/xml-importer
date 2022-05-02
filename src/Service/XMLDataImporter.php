@@ -3,20 +3,22 @@
 namespace App\Service;
 use Symfony\Component\Config\Util\XmlUtils;
 use Symfony\Component\Config\FileLocator;
-use App\Loader\XmlFileReader;
 use League\Csv\Writer;
 use App\Lib\GoogleSheetsImport;
 use Psr\Log\LoggerInterface;
 
+use App\Reader\XmlFileReader;
 use App\Writer\JsonWriter;
 use App\Writer\CsvWriter;
 use App\Lib\FTPClient;
 use Symfony\Component\Dotenv\Dotenv;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
+use App\Command\MyDependency;
 
 
-class ReadXML {
+
+class XMLDataImporter {
     public xmlFileReader $XmlFileReader;
     private $filename;    
     private $logger;
@@ -31,45 +33,55 @@ class ReadXML {
     //     $this->sheets = new GoogleSheetsImport('YourApp', '/config/google-api.json');
     // }
 
-    public function convert($fetch,$to,$consoleLogger){
-        $this->projectDir = dirname(__FILE__, 3);
-        $dotenv = new Dotenv();
-        $env = $dotenv->load($this->projectDir .'/.env');
-        $this->consoleLogger = $consoleLogger;
-        //echo getenv('APP_ENV');
-        //echo 'My username is ' .$_ENV["SERVER_PASSWORD"] . '!';
-        // create a log channel
-        $this->logger = new Logger('name');
+    /**
+	 * convert XML file into CSV, JSON
+	 *
+	 * @param string $fetch Server or Local
+	 *
+	 * @return bool
+	 */
+    public function convert(string $fetch, string $to,MyDependency $consoleLogger) : bool
+    {
+        $this->projectDir       = dirname(__FILE__, 3);
+        $dotenv                 = new Dotenv();
+        $env                    = $dotenv->load($this->projectDir .'/.env');
+        $this->consoleLogger    = $consoleLogger;
+        $this->logger           = new Logger('name');
         $this->logger->pushHandler(new StreamHandler('log/import-xml.log'));
 
-        //echo $env; die;
-        $result = '';
-
+        $result = false;
         if($result = $this->load($fetch)){
-            $result .= $this->saveCSV();
-            if($to=='JSON') $result .= $this->saveJson();
-            if($to=='GoogleSheet') $result .= $this->importGoogleSheet();
+            $this->saveCSV();
+            if($to=='JSON') $this->saveJson();
+            if($to=='GoogleSheet') $this->importGoogleSheet();
         }
         return $result;
 
     }
 
-    public function load($fetch){        
+    /**
+	 * load the XML file into Array and store the data in variable
+	 *
+	 * @param string $fetch 
+	 *
+	 * @return bool
+	 */
+    public function load(string $fetch){        
         $this->logging("starting to load XML file from $fetch",'info');
 
         if($fetch=='server'){
             $this->connectServer();
         }
-        $file = new FileLocator($this->projectDir . '/public/');
-        $this->filename = $_ENV['SERVER_XML_SAVE_FILENAME'];
-        $this->xmlFileReader = new XmlFileReader($file);
+        $file                   = new FileLocator($this->projectDir . '/public/');
+        $this->filename         = $_ENV['SERVER_XML_SAVE_FILENAME'];
+        $this->xmlFileReader    = new XmlFileReader($file);
         if($this->xmlFileReader->supports($this->filename)){
             $data= $this->xmlFileReader->load($this->filename);
             if(!$this->xmlFileReader->validFile){
                 $this->logging("$data",'error');
                 return false;
             }
-            $this->xmlData=$data['row'];
+            $this->xmlData=$data['book']; //$data['row'];
         } else {
             $this->logging("file format is wrong",'error');
             return false;
@@ -80,21 +92,20 @@ class ReadXML {
 
     public function saveCSV(){
         // fetch the keys of the first json object
-        $data = $this->xmlData;
-        $headers = array_keys(current($data));
+        $headers = array_keys(current($this->xmlData));
 
         // flatten the json objects to keep only the values as arrays
         $formattedData = [];
-        foreach ($data as $jsonObject) {
+        foreach ($this->xmlData as $jsonObject) {
             $jsonObject = array_map('strval', $jsonObject);
             $formattedData[] = array_values($jsonObject);
         }
 
-        $sheetTittle = array();
-        $sheetTittle[] = $headers;
-        $outputArray = array_merge($sheetTittle, $formattedData);
+        $sheetTittle            = array();
+        $sheetTittle[]          = $headers;
+        $outputArray            = array_merge($sheetTittle, $formattedData);
         $this->xmlData['header']=$headers;
-        $this->xmlData['data']=$formattedData;
+        $this->xmlData['data']  =$formattedData;
 
         try {
             $file = $this->projectDir. '/public/sample-'.date('m-d-Y_H:i:s').'.csv';
@@ -119,7 +130,7 @@ class ReadXML {
 
     private function saveJson(){
         try {
-            $file = $this->projectDir. '/public/sample-'.date('m-d-Y_H:i:s').'.json';
+            $file   = $this->projectDir. '/public/sample-'.date('m-d-Y_H:i:s').'.json';
             $writer = new JsonWriter($file);
             $writer->open();
             $writer->write($this->xmlData['data']);
@@ -134,26 +145,25 @@ class ReadXML {
 
     private function importGoogleSheet(){
         $authConfig = $this->projectDir.$_ENV['GHSEET_AUTH_CONFIG'];
-        $tokenPath = $this->projectDir.$_ENV['GSHEET_TOKEN_JSON'];
+        $tokenPath  = $this->projectDir.$_ENV['GSHEET_TOKEN_JSON'];
         if (file_exists($tokenPath)) {
             $accessToken = json_decode(file_get_contents($tokenPath), true);
         }
-        $this->sheets = new GoogleSheetsImport('imported XML file', $authConfig,$accessToken );
-
-        $sheetTittle = array();
-        $sheetTittle[] = $this->xmlData['header'];
-        $outputArray = array_merge($sheetTittle, $this->xmlData['data']);
-        $sheetId = $this->sheets->importData('products up interview test',$outputArray);
+        $this->sheets   = new GoogleSheetsImport('imported XML file', $authConfig,$accessToken );
+        $sheetTittle    = array();
+        $sheetTittle[]  = $this->xmlData['header'];
+        $outputArray    = array_merge($sheetTittle, $this->xmlData['data']);
+        $sheetId        = $this->sheets->importData('products up interview test',$outputArray);
         $this->logging("imported XML data into Google Sheet and created id is $sheetId",'info');
     }
 
     private function connectServer(){    
-        $ftpUsername = $_ENV['SERVER_USERNAME'];
-        $ftpPassword = $_ENV['SERVER_PASSWORD']; 
-        $ftpHost = $_ENV['SERVER_HOST'];
+        $ftpUsername    = $_ENV['SERVER_USERNAME'];
+        $ftpPassword    = $_ENV['SERVER_PASSWORD']; 
+        $ftpHost        = $_ENV['SERVER_HOST'];
         $ftpPassiveMode = $_ENV['SERVER_FTP_PASSIVE_MODE'];
-        $fileFrom = $_ENV['SERVER_XML_FILE_PATH'];
-        $fileTo = $_ENV['SERVER_XML_SAVE_DIR'].'/'.$_ENV['SERVER_XML_SAVE_FILENAME'];
+        $fileFrom       = $_ENV['SERVER_XML_FILE_PATH'];
+        $fileTo         = $_ENV['SERVER_XML_SAVE_DIR'].'/'.$_ENV['SERVER_XML_SAVE_FILENAME'];
 
         $ftpClient = new FTPClient($this->logger);
         $ftpClient->connect($ftpHost,$ftpUsername,$ftpPassword,true);

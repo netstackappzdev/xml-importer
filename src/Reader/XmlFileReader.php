@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Loader;
+namespace App\Reader;
 
 use Symfony\Component\Config\Util\XmlUtils;
 use Symfony\Component\Config\Loader\FileLoader;
@@ -38,7 +38,7 @@ class XmlFileReader extends FileLoader {
      *
      * @return bool    true if this class supports the given resource, false otherwise
      */
-    public function supports($resource, $type = null)
+    public function supports($resource, $type = null) : bool
     {
         return is_string($resource) && 'xml' === pathinfo($resource, PATHINFO_EXTENSION);
     }

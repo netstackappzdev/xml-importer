@@ -11,8 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Question\ChoiceQuestion;
-use App\Service\ReadXML;
-use App\Service\ImportXML;
+use App\Service\XMLDataImporter;
 
 
 // the "name" and "description" arguments of AsCommand replace the
@@ -26,7 +25,7 @@ use App\Service\ImportXML;
 
 class DataImporterCommand extends Command
 {
-    private ReadXML $readXML;
+    private XMLDataImporter $xmlDataImporter;
     //private LoggerInterface $logger;
 
     // the name of the command (the part after "bin/console")
@@ -77,15 +76,14 @@ class DataImporterCommand extends Command
         $logger = new ConsoleLogger($output, $verbosityLevelMap);
 
         $myDependency = new MyDependency($logger);
-        $myDependency->doStuff('test data');
+        //$myDependency->doStuff('test data');
 
         $output->writeln("Fetching XML from $fetch");
-        $this->readXML = new ReadXML();
-        $result = $this->readXML->convert($fetch,$to,$myDependency);
+        $this->xmlDataImporter = new XMLDataImporter();
+        $result = $this->xmlDataImporter->convert($fetch,$to,$myDependency);
         if(!$result){
             return Command::FAILURE;
         }
-        $output->writeln($result);
     
         return Command::SUCCESS;
     }   
