@@ -52,7 +52,7 @@ class DataImporterCommand extends Command
                 null,
                 InputOption::VALUE_REQUIRED,
                 'want to store the data? (SQlite, Google Spreadsheet, JSON file etc).',
-                'JSON' // this is the new default value, instead of null
+                'CSV' // this is the new default value, instead of null
             )
         ;
     }
@@ -69,19 +69,22 @@ class DataImporterCommand extends Command
         // );
         //$question->setErrorMessage('Color %s is invalid.');
 
-        // $verbosityLevelMap = [
-        //     LogLevel::NOTICE => OutputInterface::VERBOSITY_NORMAL,
-        //     LogLevel::INFO   => OutputInterface::VERBOSITY_NORMAL,
-        // ];
+        $verbosityLevelMap = [
+            LogLevel::NOTICE => OutputInterface::VERBOSITY_NORMAL,
+            LogLevel::INFO   => OutputInterface::VERBOSITY_NORMAL,
+        ];
         
-        // $logger = new ConsoleLogger($output, $verbosityLevelMap);
+        $logger = new ConsoleLogger($output, $verbosityLevelMap);
 
-        // $myDependency = new MyDependency($logger);
-        // $myDependency->doStuff('test data');
+        $myDependency = new MyDependency($logger);
+        $myDependency->doStuff('test data');
 
         $output->writeln("Fetching XML from $fetch");
         $this->readXML = new ReadXML();
-        $result = $this->readXML->convert($fetch,$to);
+        $result = $this->readXML->convert($fetch,$to,$myDependency);
+        if(!$result){
+            return Command::FAILURE;
+        }
         $output->writeln($result);
     
         return Command::SUCCESS;

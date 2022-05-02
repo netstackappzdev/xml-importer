@@ -18,7 +18,12 @@ cd xml-importer/
 ```
 docker-compose up -d --build
 ```
-## Examples
+
+```
+cp .env.example .env and update needed fields
+```
+
+## Usage
 
 ### Enter bash shell
 ```
@@ -64,8 +69,8 @@ Usage:
   app:xml-data-importer
 
 Options:
-      --fetch=FETCH     fetch XML from local or server? [default: "local"]
-      --to=TO           want to store the data? (SQlite, GoogleSheet, JSON file etc). [default: "JSON"]
+      --fetch=FETCH     fetch XML from local or server? [default: "server"]
+      --to=TO           want to store the data? (SQlite, Google Spreadsheet, JSON file etc). [default: "JSON"]
   -h, --help            Display help for the given command. When no command is given display help for the list command
   -q, --quiet           Do not output any message
   -V, --version         Display this application version
@@ -74,5 +79,25 @@ Options:
   -v|vv|vvv, --verbose  Increase the verbosity of messages: 1 for normal output, 2 for more verbose output and 3 for debug
 
 Help:
-  This command allows you to Import a XML file into (CSV, JSON, GoogleSheet & SQlite)
+  This command allows you to Import a XML file into (CSV, JSON, Google Sheet & SQlite)
 ```
+
+Import XML
+===================
+Import data from XML to CSV
+
+    php index.php app:xml-data-importer 
+    
+Import data from XML to JSON
+
+    php index.php app:xml-data-importer --fetch=server --to=JSON
+
+Import data from XML to GoogleSheet
+
+    php index.php app:xml-data-importer --fetch=server --to=GoogleSheet
+    
+Information
+===================
+Log file store in log/import-xml.log
+Save google sheet credentials in config/google folder and mention the path and name in .env file
+

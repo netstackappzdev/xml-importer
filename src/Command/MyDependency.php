@@ -12,13 +12,13 @@ class MyDependency
     private $psrLogger;
 
     public function __construct(
-        Logger $logger,
-        //LoggerInterface $psrLogger
+        //Logger $psrLogger,
+        LoggerInterface $logger
     )
     {
         $this->logger = $logger;
         //$this->psrLogger = $psrLogger;
-        $this->logger->pushHandler(new StreamHandler('log/import-xml.log'));
+        //$this->logger->pushHandler(new StreamHandler('log/import-xml.log'));
     }
 
     public function doStuff($logdata)

@@ -6,6 +6,7 @@ use Symfony\Component\Config\Util\XmlUtils;
 use Symfony\Component\Config\Loader\FileLoader;
 
 class XmlFileReader extends FileLoader {
+    public $validFile=true;
 
     /**
      * Read the content of an XML file.
@@ -20,9 +21,11 @@ class XmlFileReader extends FileLoader {
             $dom = XmlUtils::loadFile($path);
         }
         catch (\InvalidArgumentException $e) {
-            throw new \InvalidArgumentException(sprintf('Unable to parse file "%s".', $file), $e->getCode(), $e);
+            $this->validFile=false;
+            return $e; 
+            //throw new \InvalidArgumentException(sprintf('Unable to parse file "%s".', $file), $e->getCode(), $e);
         }
-        $arrayXml = XmlUtils::convertDomElementToArray(   $dom->documentElement);
+        $arrayXml = XmlUtils::convertDomElementToArray($dom->documentElement);
         return $arrayXml;
 
     }

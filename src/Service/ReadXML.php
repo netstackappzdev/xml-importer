@@ -20,6 +20,7 @@ class ReadXML {
     public xmlFileReader $XmlFileReader;
     private $filename;    
     private $logger;
+    public $consoleLogger;
     protected $projectDir;
     /** @var GoogleSheetsImport */
     private GoogleSheetsImport $sheets;
@@ -30,10 +31,11 @@ class ReadXML {
     //     $this->sheets = new GoogleSheetsImport('YourApp', '/config/google-api.json');
     // }
 
-    public function convert($fetch,$to){
+    public function convert($fetch,$to,$consoleLogger){
         $this->projectDir = dirname(__FILE__, 3);
         $dotenv = new Dotenv();
         $env = $dotenv->load($this->projectDir .'/.env');
+        $this->consoleLogger = $consoleLogger;
         //echo getenv('APP_ENV');
         //echo 'My username is ' .$_ENV["SERVER_PASSWORD"] . '!';
         // create a log channel
@@ -53,7 +55,8 @@ class ReadXML {
     }
 
     public function load($fetch){        
-        $this->logger->info("starting to load XML file from $fetch");   
+        $this->logging("starting to load XML file from $fetch",'info');
+
         if($fetch=='server'){
             $this->connectServer();
         }
@@ -62,10 +65,14 @@ class ReadXML {
         $this->xmlFileReader = new XmlFileReader($file);
         if($this->xmlFileReader->supports($this->filename)){
             $data= $this->xmlFileReader->load($this->filename);
+            if(!$this->xmlFileReader->validFile){
+                $this->logging("$data",'error');
+                return false;
+            }
             $this->xmlData=$data['row'];
         } else {
-            $this->logger->error('file format is wrong');
-            return true;
+            $this->logging("file format is wrong",'error');
+            return false;
         }   
 
         return true;  
@@ -101,12 +108,12 @@ class ReadXML {
             foreach($outputArray as $outputdata){
                 $writer->write($outputdata);
             }
-
+            $this->logging("converted XML files into CSV file and stored in $file",'info');
             $writer->close();
 
         }
         catch(IOException $e) {
-            //log code here
+            $this->logging("$e",'error');
         }
     }
 
@@ -117,9 +124,11 @@ class ReadXML {
             $writer->open();
             $writer->write($this->xmlData['data']);
             $writer->close();
+            $this->logging("converted XML files into JSON file and stored  in $file",'info');
         }
         catch(IOException $e) {
             //log code here
+            $this->logging("$e",'error');
         }
     }
 
@@ -129,12 +138,13 @@ class ReadXML {
         if (file_exists($tokenPath)) {
             $accessToken = json_decode(file_get_contents($tokenPath), true);
         }
-        $this->sheets = new GoogleSheetsImport('Google Sheets API PHP Quickstart', $authConfig,$accessToken );
+        $this->sheets = new GoogleSheetsImport('imported XML file', $authConfig,$accessToken );
 
         $sheetTittle = array();
         $sheetTittle[] = $this->xmlData['header'];
         $outputArray = array_merge($sheetTittle, $this->xmlData['data']);
-        $this->sheets->importData('products up interview test',$outputArray);
+        $sheetId = $this->sheets->importData('products up interview test',$outputArray);
+        $this->logging("imported XML data into Google Sheet and created id is $sheetId",'info');
     }
 
     private function connectServer(){    
@@ -148,6 +158,11 @@ class ReadXML {
         $ftpClient = new FTPClient($this->logger);
         $ftpClient->connect($ftpHost,$ftpUsername,$ftpPassword,true);
         $listfiles = $ftpClient->downloadFile($fileFrom,$this->projectDir.$fileTo);         
+    }
+
+    private function logging($message,$type){
+        $this->logger->$type($message);   
+        $this->consoleLogger->$type($message);
     }
 
 }
