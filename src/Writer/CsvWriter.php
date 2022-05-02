@@ -47,6 +47,10 @@ class CsvWriter implements TypedWriterInterface
      * @var string
      */
     private $terminate;
+     /**
+     * @var int
+     */
+    protected $importCount = 0;
 
     /**
      * @throws \RuntimeException
@@ -112,6 +116,7 @@ class CsvWriter implements TypedWriterInterface
         $result = @fputcsv($this->file, $data, $this->delimiter, $this->enclosure, $this->escape);
 
         ++$this->position;
+        $this->importCount=$this->position;
     }
 
     private function addHeaders(array $data): void
@@ -122,5 +127,15 @@ class CsvWriter implements TypedWriterInterface
         }
 
         fputcsv($this->file, $headers, $this->delimiter, $this->enclosure, $this->escape);
+    }
+    
+    /**
+     * Get import count.
+     *
+     * @return int
+     */
+    public function getImportCount(): int
+    {
+        return $this->importCount;
     }
 }

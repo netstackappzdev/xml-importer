@@ -18,6 +18,10 @@ class JsonWriter implements TypedWriterInterface
      * @var int
      */
     private $position = 0;
+    /**
+    * @var int
+    */
+   protected $importCount = 0;
 
     /**
      * @throws \RuntimeException
@@ -60,5 +64,16 @@ class JsonWriter implements TypedWriterInterface
         fwrite($this->file, ($this->position > 0 ? ',' : '').json_encode($data));
 
         ++$this->position;
+        $this->importCount=$this->position;
+    }
+    
+    /**
+     * Get import count.
+     *
+     * @return int
+     */
+    public function getImportCount(): int
+    {
+        return $this->importCount;
     }
 }
