@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 namespace App\Command;
 use Psr\Log\LoggerInterface;
 use Monolog\Logger;
