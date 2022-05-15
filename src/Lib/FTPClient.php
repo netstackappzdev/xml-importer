@@ -6,12 +6,13 @@ namespace App\Lib;
 
 class FTPClient
 {
-    private $connectionId;
-    private $loginOk = false;
-    public function __construct($logger)
-    {
-        $this->logger = $logger;
-    }
+    public function __construct(
+        public $logger,
+        private $connectionId = '',
+        private bool $loginOk = false
+    )
+    {}
+    
     public function __deconstruct()
     {
         if ($this->connectionId) {

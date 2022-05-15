@@ -7,74 +7,19 @@ namespace App\Writer;
 class CsvWriter implements TypedWriterInterface
 {
     /**
-     * @var string
-     */
-    private $filename;
-
-    /**
-     * @var string
-     */
-    private $delimiter;
-
-    /**
-     * @var string
-     */
-    private $enclosure;
-
-    /**
-     * @var string
-     */
-    private $escape;
-
-    /**
-     * @var resource|null
-     */
-    private $file;
-
-    /**
-     * @var bool
-     */
-    private $showHeaders;
-
-    /**
-     * @var int
-     */
-    private $position;
-
-    /**
-     * @var bool
-     */
-    private $withBom;
-
-    /**
-     * @var string
-     */
-    private $terminate;
-     /**
-     * @var int
-     */
-    protected $importCount = 0;
-
-    /**
      * @throws \RuntimeException
      */
     public function __construct(
-        string $filename,
-        string $delimiter = ',',
-        string $enclosure = '"',
-        string $escape = '\\',
-        bool $showHeaders = true,
-        bool $withBom = false,
-        string $terminate = "\n"
+        private string $filename,
+        private string $delimiter = ',',
+        private string $enclosure = '"',
+        private string $escape = '\\',
+        private bool $showHeaders = false,
+        private bool $withBom = false,
+        private string $terminate = "\n",
+        protected int $importCount = 0,
+        private int $position = 0
     ) {
-        $this->filename = $filename;
-        $this->delimiter = $delimiter;
-        $this->enclosure = $enclosure;
-        $this->escape = $escape;
-        $this->showHeaders = $showHeaders;
-        $this->terminate = $terminate;
-        $this->position = 0;
-        $this->withBom = $withBom;
 
         if (is_file($filename)) {
             throw new \RuntimeException(sprintf('The file %s already exist', $filename));

@@ -16,14 +16,6 @@ class GoogleSheetsImport {
      */
     private Google_Service_Sheets $sheets;
 
-    /** @var array */
-    private array $data;
-
-    /** @var array */
-    private array $lastWarnings = [];
-
-    /** @var int */
-    private int $updates = 0;
 
     /**
      * GoogleSheetsToArray constructor.
@@ -31,7 +23,11 @@ class GoogleSheetsImport {
      * @param string $authConfig
      * @throws Google_Exception
      */
-    public function __construct(string $applicationName, string $authConfig,array $accessToken)
+    public function __construct(
+        private string $applicationName, 
+        private string $authConfig,
+        private array $accessToken
+    )
     {
         $client = new Google_Client();
         $client->setAccessType('offline');

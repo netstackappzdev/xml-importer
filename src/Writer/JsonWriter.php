@@ -7,30 +7,14 @@ namespace App\Writer;
 class JsonWriter implements TypedWriterInterface
 {
     /**
-     * @var string
-     */
-    private $filename;
-
-    /**
-     * @var resource|null
-     */
-    private $file;
-
-    /**
-     * @var int
-     */
-    private $position = 0;
-    /**
-    * @var int
-    */
-   protected $importCount = 0;
-
-    /**
      * @throws \RuntimeException
      */
-    public function __construct(string $filename)
+    public function __construct(
+        private string $filename,
+        private int $position = 0,
+        protected int $importCount = 0,
+    )
     {
-        $this->filename = $filename;
 
         if (is_file($filename)) {
             throw new \RuntimeException(sprintf('The file %s already exist', $filename));

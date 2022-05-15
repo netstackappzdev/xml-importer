@@ -116,7 +116,7 @@ class XMLDataImporter {
             // $csv->insertOne($headers);
             // $csv->insertAll($formattedData);
 
-            $writer = new CsvWriter($file, ',', '"', '\\', false);
+            $writer = new CsvWriter($file);
             $writer->open();
             foreach($outputArray as $outputdata){
                 $writer->write($outputdata);
