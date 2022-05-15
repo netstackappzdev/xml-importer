@@ -46,7 +46,8 @@ class GoogleSheetsImport {
      * @return string
      * @throws Exception
      */
-    public function importData(string $title,array $data){
+    public function importData(string $title,array $data): string
+    {
          // TODO: Assign values to desired properties of `requestBody`:
          $spreadsheet = new Google_Service_Sheets_Spreadsheet([
             'properties' => [

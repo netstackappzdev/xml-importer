@@ -4,35 +4,27 @@ declare(strict_types=1);
 
 namespace App\Command;
 use Psr\Log\LoggerInterface;
-use Monolog\Logger;
-use Monolog\Handler\StreamHandler;
 
 class MyDependency
 {
-    private $logger;
-    private $psrLogger;
 
     public function __construct(
-        //Logger $psrLogger,
-        LoggerInterface $logger
+        private LoggerInterface $logger
     )
     {
-        $this->logger = $logger;
-        //$this->psrLogger = $psrLogger;
-        //$this->logger->pushHandler(new StreamHandler('log/import-xml.log'));
     }
 
-    public function doStuff($logdata)
+    public function doStuff($logdata): void
     {
         $this->logger->info($logdata);
     }
 
-    public function info($logdata)
+    public function info($logdata): void
     {
         $this->logger->info($logdata);
     }
 
-    public function error($logdata)
+    public function error($logdata): void
     {
         $this->logger->error($logdata);
     }

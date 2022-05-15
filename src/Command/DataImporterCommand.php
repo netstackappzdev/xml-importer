@@ -27,20 +27,17 @@ use App\Service\XMLDataImporter;
 
 class DataImporterCommand extends Command
 {
-    private XMLDataImporter $xmlDataImporter;
-    //private LoggerInterface $logger;
 
     // the name of the command (the part after "bin/console")
     protected static $defaultName = 'app:xml-data-importer';
     // the command description shown when running "php bin/console list"
-    protected static $defaultDescription = 'XML data importer to (CSV,JSON,Google Sheet or SQlite)';
+    protected static $defaultDescription = 'XML data importer to (CSV,JSON,GoogleSheet or SQlite)';
    
     public function __construct(
-        XMLDataImporter $xmlDataImporter,
+        private XMLDataImporter $xmlDataImporter,
     ) {
 
         parent::__construct();
-        $this->xmlDataImporter = $xmlDataImporter;
     }
 
     protected function configure(): void
@@ -64,18 +61,11 @@ class DataImporterCommand extends Command
             )
         ;
     }
+
     protected function execute(InputInterface $input, OutputInterface $output): int
     {       
         $fetch =  $input->getOption('fetch');
         $to = $input->getOption('to');
-
-        // $question = new ChoiceQuestion(
-        //     'Choose any one format to convert the data',
-        //     // choices can also be PHP objects that implement __toString() method
-        //     ['CSV', 'GoogleSheet', 'JSON'],
-        //     0
-        // );
-        //$question->setErrorMessage('Color %s is invalid.');
 
         $verbosityLevelMap = [
             LogLevel::NOTICE => OutputInterface::VERBOSITY_NORMAL,
@@ -85,10 +75,8 @@ class DataImporterCommand extends Command
         $logger = new ConsoleLogger($output, $verbosityLevelMap);
 
         $myDependency = new MyDependency($logger);
-        //$myDependency->doStuff('test data');
 
         $output->writeln("Fetching XML from $fetch");
-        //$this->xmlDataImporter = new XMLDataImporter();
         $result = $this->xmlDataImporter->convert($fetch,$to,$myDependency);
         if(!$result){
             return Command::FAILURE;

@@ -1,7 +1,6 @@
 <?php
 
 declare(strict_types=1);
-// src/EventListener/ExceptionListener.php
 namespace App\EventListener;
 
 use Symfony\Component\HttpFoundation\Response;
@@ -10,7 +9,7 @@ use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 class ExceptionListener
 {
-    public function onKernelException(ExceptionEvent $event)
+    public function onKernelException(ExceptionEvent $event): void
     {
         // You get the exception object from the received event
         $exception = $event->getThrowable();

@@ -20,7 +20,7 @@ class FTPClient
         }
     }
 
-    public function connect($server, $ftpUser, $ftpPassword, $isPassive = false)
+    public function connect($server, $ftpUser, $ftpPassword, $isPassive = false): bool
     {
         $this->connectionId = ftp_connect($server);
         $loginResult = ftp_login($this->connectionId, $ftpUser, $ftpPassword);
@@ -36,7 +36,7 @@ class FTPClient
         }
     }
 
-    public function downloadFile($fileFrom, $fileTo)
+    public function downloadFile($fileFrom, $fileTo): bool
     {
         $asciiArray = array('txt', 'csv');
         $fileParts = explode('.', $fileFrom);

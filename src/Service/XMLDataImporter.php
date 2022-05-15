@@ -45,8 +45,6 @@ class XMLDataImporter {
         //gsheetinfo
         $this->gsheet_token_json = $parameterBag->get('gsheet_token_json');
         $this->gsheet_auth_config = $parameterBag->get('gsheet_auth_config');
-        //$this->logger = $logger;
-        //$this->sheets = new GoogleSheetsImport('YourApp', '/config/google-api.json');
     }
 
     /**
@@ -70,7 +68,6 @@ class XMLDataImporter {
             if($to=='GoogleSheet') $this->importGoogleSheet();
         }
         return $result;
-
     }
 
     /**
@@ -80,7 +77,8 @@ class XMLDataImporter {
 	 *
 	 * @return bool
 	 */
-    public function load(string $fetch){        
+    public function load(string $fetch) : bool
+    {        
         $this->logging("starting to load XML file from $fetch",'info');
 
         if($fetch=='server'){
@@ -104,7 +102,8 @@ class XMLDataImporter {
         return true;  
     }
 
-    public function saveCSV(){
+    public function saveCSV(): void
+    {
         // fetch the keys of the first json object
         $headers = array_keys(current($this->xmlData));
 
@@ -142,7 +141,8 @@ class XMLDataImporter {
         }
     }
 
-    private function saveJson(){
+    private function saveJson(): void
+    {
         try {
             $file   = $this->projectDir. '/public/sample-'.date('m-d-Y_H:i:s').'.json';
             $writer = new JsonWriter($file);
@@ -157,7 +157,8 @@ class XMLDataImporter {
         }
     }
 
-    private function importGoogleSheet(){
+    private function importGoogleSheet(): void
+    {
         $authConfig = $this->projectDir.$this->gsheet_auth_config;
         $tokenPath  = $this->projectDir.$this->gsheet_token_json;
         if (file_exists($tokenPath)) {
@@ -171,7 +172,8 @@ class XMLDataImporter {
         $this->logging("imported XML data into Google Sheet and created id is $sheetId",'info');
     }
 
-    private function connectServer(){    
+    private function connectServer(): void
+    {    
         $ftpUsername    = $this->server_ftp_username;
         $ftpPassword    = $this->server_ftp_password; 
         $ftpHost        = $this->server_ftp_host;
@@ -184,7 +186,8 @@ class XMLDataImporter {
         $listfiles = $ftpClient->downloadFile($fileFrom,$this->projectDir.$fileTo);         
     }
 
-    private function logging($message,$type){
+    private function logging($message,$type): void
+    {
         $this->logger->$type($message);   
         $this->consoleLogger->$type($message);
     }
