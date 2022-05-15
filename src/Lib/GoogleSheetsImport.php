@@ -41,7 +41,6 @@ class GoogleSheetsImport {
 
     /**
      * @param string $title
-     * @param string $entityIdHeader
      * @param array $data
      * @return string
      * @throws Exception

@@ -12,7 +12,10 @@ class FTPClient
         private bool $loginOk = false
     )
     {}
-    
+
+    /**
+     * Close the connection when the object is destroyed.
+     */
     public function __deconstruct()
     {
         if ($this->connectionId) {
@@ -20,6 +23,13 @@ class FTPClient
         }
     }
 
+    /**
+     * Open a FTP connection.
+     * @param string $server 
+     * @param string $ftpUser  
+     * @param string $ftpPassword  
+     * @return bool 
+     */
     public function connect($server, $ftpUser, $ftpPassword, $isPassive = false): bool
     {
         $this->connectionId = ftp_connect($server);
@@ -36,6 +46,12 @@ class FTPClient
         }
     }
 
+    /**
+     * Starts downloading a remote file.
+     * @param string $fileFrom The remote file to download.
+     * @param string $fileTo  The local file path.
+     * @return bool 
+     */
     public function downloadFile($fileFrom, $fileTo): bool
     {
         $asciiArray = array('txt', 'csv');
