@@ -32,10 +32,10 @@ cp .env.example .env and update needed fields
 
 ### List available commands
 ```
-php index.php list
+bin/console list
 ```
 ```
-root@415787353ed2:/var/www/html# php index.php list
+root@415787353ed2:/var/www/html# bin/console list
 
 Usage:
   command [options] [arguments]
@@ -57,10 +57,10 @@ Available commands:
 ```
 
 ```
-php index.php app:xml-data-importer
+bin/console app:xml-data-importer
 ```
 ```
-root@415787353ed2:/var/www/html# php index.php app:xml-data-importer -h
+root@415787353ed2:/var/www/html# bin/console app:xml-data-importer -h
 Description:
   XML data importer to (CSV,JSON,Google Sheet or SQlite)
 
@@ -86,15 +86,15 @@ Import XML
 ===================
 Import data from XML to CSV
 
-    php index.php app:xml-data-importer 
+    bin/console app:xml-data-importer 
     
 Import data from XML to JSON
 
-    php index.php app:xml-data-importer --fetch=server --to=JSON
+    bin/console app:xml-data-importer --fetch=server --to=JSON
 
 Import data from XML to GoogleSheet
 
-    php index.php app:xml-data-importer --fetch=server --to=GoogleSheet
+    bin/console app:xml-data-importer --fetch=server --to=GoogleSheet
     
 Information
 ===================
