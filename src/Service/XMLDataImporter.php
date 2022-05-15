@@ -13,10 +13,10 @@ use App\Reader\XmlFileReader;
 use App\Writer\JsonWriter;
 use App\Writer\CsvWriter;
 use App\Lib\FTPClient;
-use Symfony\Component\Dotenv\Dotenv;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use App\Command\MyDependency;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 
 
@@ -29,11 +29,25 @@ class XMLDataImporter {
     /** @var GoogleSheetsImport */
     private GoogleSheetsImport $sheets;
 
-    // public function __construct(LoggerInterface $logger)
-    // {
-    //     $this->logger = $logger;
-    //     $this->sheets = new GoogleSheetsImport('YourApp', '/config/google-api.json');
-    // }
+    public function __construct(
+        ParameterBagInterface $parameterBag
+    )
+    {
+        //fileinfo
+        $this->server_xml_save_filename = $parameterBag->get('server_xml_save_filename');
+        $this->server_xml_file_path = $parameterBag->get('server_xml_file_path');
+        $this->server_xml_save_dir = $parameterBag->get('server_xml_save_dir');
+        //ftpinfo
+        $this->server_ftp_mode = $parameterBag->get('server_ftp_mode');
+        $this->server_ftp_username = $parameterBag->get('server_ftp_username');
+        $this->server_ftp_password = $parameterBag->get('server_ftp_password');
+        $this->server_ftp_host = $parameterBag->get('server_ftp_host');
+        //gsheetinfo
+        $this->gsheet_token_json = $parameterBag->get('gsheet_token_json');
+        $this->gsheet_auth_config = $parameterBag->get('gsheet_auth_config');
+        //$this->logger = $logger;
+        //$this->sheets = new GoogleSheetsImport('YourApp', '/config/google-api.json');
+    }
 
     /**
 	 * convert XML file into CSV, JSON
@@ -45,8 +59,6 @@ class XMLDataImporter {
     public function convert(string $fetch, string $to,MyDependency $consoleLogger) : bool
     {
         $this->projectDir       = dirname(__FILE__, 3);
-        $dotenv                 = new Dotenv();
-        $env                    = $dotenv->load($this->projectDir .'/.env');
         $this->consoleLogger    = $consoleLogger;
         $this->logger           = new Logger('name');
         $this->logger->pushHandler(new StreamHandler('log/import-xml.log'));
@@ -75,7 +87,7 @@ class XMLDataImporter {
             $this->connectServer();
         }
         $file                   = new FileLocator($this->projectDir . '/public/');
-        $this->filename         = $_ENV['SERVER_XML_SAVE_FILENAME'];
+        $this->filename         = $this->server_xml_save_filename;
         $this->xmlFileReader    = new XmlFileReader($file);
         if($this->xmlFileReader->supports($this->filename)){
             $data= $this->xmlFileReader->load($this->filename);
@@ -83,7 +95,7 @@ class XMLDataImporter {
                 $this->logging("$data",'error');
                 return false;
             }
-            $this->xmlData=$data['book']; //$data['row'];
+            $this->xmlData=$data['row']; //$data['book'];
         } else {
             $this->logging("file format is wrong",'error');
             return false;
@@ -146,8 +158,8 @@ class XMLDataImporter {
     }
 
     private function importGoogleSheet(){
-        $authConfig = $this->projectDir.$_ENV['GHSEET_AUTH_CONFIG'];
-        $tokenPath  = $this->projectDir.$_ENV['GSHEET_TOKEN_JSON'];
+        $authConfig = $this->projectDir.$this->gsheet_auth_config;
+        $tokenPath  = $this->projectDir.$this->gsheet_token_json;
         if (file_exists($tokenPath)) {
             $accessToken = json_decode(file_get_contents($tokenPath), true);
         }
@@ -160,12 +172,12 @@ class XMLDataImporter {
     }
 
     private function connectServer(){    
-        $ftpUsername    = $_ENV['SERVER_USERNAME'];
-        $ftpPassword    = $_ENV['SERVER_PASSWORD']; 
-        $ftpHost        = $_ENV['SERVER_HOST'];
-        $ftpPassiveMode = $_ENV['SERVER_FTP_PASSIVE_MODE'];
-        $fileFrom       = $_ENV['SERVER_XML_FILE_PATH'];
-        $fileTo         = $_ENV['SERVER_XML_SAVE_DIR'].'/'.$_ENV['SERVER_XML_SAVE_FILENAME'];
+        $ftpUsername    = $this->server_ftp_username;
+        $ftpPassword    = $this->server_ftp_password; 
+        $ftpHost        = $this->server_ftp_host;
+        $ftpPassiveMode = $this->server_ftp_mode;
+        $fileFrom       = $this->server_xml_file_path;
+        $fileTo         = $this->server_xml_save_dir.'/'.$this->server_xml_save_filename;
 
         $ftpClient = new FTPClient($this->logger);
         $ftpClient->connect($ftpHost,$ftpUsername,$ftpPassword,true);

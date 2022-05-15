@@ -35,6 +35,13 @@ class DataImporterCommand extends Command
     // the command description shown when running "php bin/console list"
     protected static $defaultDescription = 'XML data importer to (CSV,JSON,Google Sheet or SQlite)';
    
+    public function __construct(
+        XMLDataImporter $xmlDataImporter,
+    ) {
+
+        parent::__construct();
+        $this->xmlDataImporter = $xmlDataImporter;
+    }
 
     protected function configure(): void
     {
@@ -81,7 +88,7 @@ class DataImporterCommand extends Command
         //$myDependency->doStuff('test data');
 
         $output->writeln("Fetching XML from $fetch");
-        $this->xmlDataImporter = new XMLDataImporter();
+        //$this->xmlDataImporter = new XMLDataImporter();
         $result = $this->xmlDataImporter->convert($fetch,$to,$myDependency);
         if(!$result){
             return Command::FAILURE;
